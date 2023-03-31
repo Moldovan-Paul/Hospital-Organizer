@@ -8,3 +8,4 @@
   
   **Hospital Organizer** is a simple **RESTful API** that allows users to manage entities related to hospitals. It is written in **Java** and uses the **Spring Boot** framework. Data is stored in a **MySQL** database.
   
+# CURRENTLY UPDATING DESCRIPTION...
