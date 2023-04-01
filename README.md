@@ -1,7 +1,7 @@
 # About this project
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/98110966/226477003-792e8dac-d15f-4804-9062-654406516dfc.png" width="400">
+<img src="https://user-images.githubusercontent.com/98110966/229280997-46e57145-5e21-4026-a8f8-a203fb7fac1e.png" width="400">
 </p>
 
   
@@ -43,7 +43,9 @@ GET - hospitals - /filter/{capacity}
 
 Returns a list of all hospitals which have a capacity greater than or equal to the given number
 
-GET - 
+GET - shifts - /stats
+
+Returns a list of doctor ids along with the number of patients which they have under care during their shifts
 
 *The list of functionalities is constantly expanding.*
 
@@ -52,6 +54,3 @@ GET -
 Demonstration using Postman for requests
 
 https://user-images.githubusercontent.com/98110966/229280670-5bbf9d23-0582-45e0-80ba-308daaa710c8.mp4
-
-
-
