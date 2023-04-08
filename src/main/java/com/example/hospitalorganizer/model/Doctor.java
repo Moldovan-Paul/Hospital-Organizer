@@ -20,21 +20,21 @@ import java.util.List;
 public class Doctor {
         @Id
         @Column(name = "id")
-        int id;
+        private int id;
         @Column(name = "firstName")
         @NotBlank(message = "Please input first name.")
-        String firstName;
+        private String firstName;
         @NotBlank(message = "Please input last name.")
         @Column(name = "lastName")
-        String lastName;
+        private String lastName;
         @Column(name = "speciality")
         @NotBlank(message = "Please input specialty name.")
-        String speciality;
+        private String speciality;
         @Column(name = "yearsOfExperience")
         @Min(value = 1, message = "Please input years of experience.")
-        int yearsOfExperience;
+        private int yearsOfExperience;
 
-        @OneToMany(mappedBy = "doctor")
+        @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonManagedReference(value = "doctor-shift-list")
-        List<Shift> shifts;
+        private List<Shift> shifts;
 }

@@ -1,8 +1,11 @@
 package com.example.hospitalorganizer.controller;
 
-import com.example.hospitalorganizer.dto.ShiftDto;
+import com.example.hospitalorganizer.dto.ShiftWithIdsDto;
+import com.example.hospitalorganizer.dto.ShiftWithObjectsDto;
 import com.example.hospitalorganizer.dto.StatsDto;
 import com.example.hospitalorganizer.exception.ConsultationNotFoundException;
+import com.example.hospitalorganizer.exception.DoctorNotFoundException;
+import com.example.hospitalorganizer.exception.HospitalNotFoundException;
 import com.example.hospitalorganizer.model.Shift;
 import com.example.hospitalorganizer.service.ShiftService;
 import jakarta.validation.Valid;
@@ -24,34 +27,38 @@ public class ShiftController {
     }
 
     @GetMapping
-    public List<ShiftDto> findAllConsultations() {
+    @ResponseStatus(HttpStatus.OK)
+    public List<ShiftWithIdsDto> findAllConsultations() {
         return service.findAllConsultations();
     }
 
     @GetMapping("/{id}")
-    public ShiftDto findById(@PathVariable int id) throws ConsultationNotFoundException {
+    @ResponseStatus(HttpStatus.OK)
+    public ShiftWithObjectsDto findById(@PathVariable int id) throws ConsultationNotFoundException, DoctorNotFoundException {
         return service.findById(id);
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public Shift create(@Valid @RequestBody Shift shift) {
-        return service.create(shift);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Shift create(@Valid @RequestBody ShiftWithIdsDto shiftDto) throws DoctorNotFoundException, HospitalNotFoundException {
+        return service.create(shiftDto);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+
     @PutMapping("/{id}")
-    public void update(@Valid @RequestBody Shift shift, @PathVariable int id) throws ConsultationNotFoundException {
-        service.update(shift, id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void update(@Valid @RequestBody ShiftWithIdsDto shiftDto, @PathVariable int id) throws ConsultationNotFoundException, DoctorNotFoundException, HospitalNotFoundException {
+        service.update(shiftDto, id);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable int id) throws ConsultationNotFoundException {
         service.delete(id);
     }
 
     @GetMapping("/stats")
+    @ResponseStatus(HttpStatus.OK)
     public List<StatsDto> stats(){
         return service.stats();
     }

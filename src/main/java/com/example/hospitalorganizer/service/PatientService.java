@@ -1,10 +1,15 @@
 package com.example.hospitalorganizer.service;
 
-import com.example.hospitalorganizer.dto.PatientDto;
+import com.example.hospitalorganizer.dto.HospitalWithoutPatientsShiftsDto;
+import com.example.hospitalorganizer.dto.PatientWithHospitalDto;
+import com.example.hospitalorganizer.dto.PatientWithHospitalIdDto;
+import com.example.hospitalorganizer.exception.HospitalNotFoundException;
 import com.example.hospitalorganizer.exception.PatientNotFoundException;
+import com.example.hospitalorganizer.model.Hospital;
 import com.example.hospitalorganizer.model.Patient;
+import com.example.hospitalorganizer.modelmapper.GlobalModelMapper;
+import com.example.hospitalorganizer.repository.HospitalRepository;
 import com.example.hospitalorganizer.repository.PatientRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,50 +18,56 @@ import java.util.stream.Collectors;
 @Service
 public class PatientService {
 
-    private final PatientRepository repository;
+    private final PatientRepository patientRepository;
 
-    private final ModelMapper modelMapper;
+    private final HospitalRepository hospitalRepository;
 
-    public PatientService(PatientRepository repository) {
-        this.repository = repository;
-        modelMapper = new ModelMapper();
+    public PatientService(PatientRepository patientRepository, HospitalRepository hospitalRepository) {
+        this.patientRepository = patientRepository;
+        this.hospitalRepository = hospitalRepository;
     }
 
-    private PatientDto convertToDtoWithHospitalId(Patient patient) {
-        PatientDto patientDto = modelMapper.map(patient, PatientDto.class);
-        if (patient.getH() != null)
-            patientDto.setHospitalId(patient.getH().getId());
+    private PatientWithHospitalIdDto convertToDtoWithHospitalId(Patient patient) {
+        PatientWithHospitalIdDto patientDto = GlobalModelMapper.modelMapper.map(patient, PatientWithHospitalIdDto.class);
+        if (patient.getHospital() != null)
+            patientDto.setHospitalId(patient.getHospital().getId());
         return patientDto;
     }
 
-    private PatientDto convertToDtoWithHospital(Patient patient) {
-        PatientDto patientDto = modelMapper.map(patient, PatientDto.class);
-        if (patient.getH() != null)
+    private PatientWithHospitalDto convertToDtoWithHospital(Patient patient) {
+        PatientWithHospitalDto patientDto = GlobalModelMapper.modelMapper.map(patient, PatientWithHospitalDto.class);
+        if (patient.getHospital() != null)
         {
-            patientDto.setHospital(patient.getH());
-            patientDto.makePatientsListNull();
-            patientDto.makeShiftsListNull();
+            patientDto.setHospital(GlobalModelMapper.modelMapper
+                    .map(patient.getHospital(), HospitalWithoutPatientsShiftsDto.class));
         }
         return patientDto;
     }
 
-    public List<PatientDto> findAllPatients() {
-        return repository.findAll().stream()
+    public List<PatientWithHospitalIdDto> findAllPatients() {
+        return patientRepository.findAll().stream()
                 .map(this::convertToDtoWithHospitalId)
                 .collect(Collectors.toList());
     }
 
-    public PatientDto findById(int id) throws PatientNotFoundException {
-        return convertToDtoWithHospital(repository.findById(id).orElseThrow(PatientNotFoundException::new));
+    public PatientWithHospitalDto findById(int id) throws PatientNotFoundException {
+        return convertToDtoWithHospital(patientRepository.findById(id).orElseThrow(PatientNotFoundException::new));
     }
 
-    public Patient create(Patient patient) {
-        return repository.save(patient);
+    public Patient create(PatientWithHospitalIdDto patientWithHospitalIdDto) throws HospitalNotFoundException {
+        Patient patient = GlobalModelMapper.modelMapper.map(patientWithHospitalIdDto, Patient.class);
+        if (patientWithHospitalIdDto.getHospitalId() != 0) {
+            Hospital hospital = hospitalRepository.findById(patientWithHospitalIdDto.getHospitalId()).orElseThrow(
+                    HospitalNotFoundException::new
+            );
+            patient.setHospital(hospital);
+        }
+        return patientRepository.save(patient);
     }
 
-    public void update(Patient patient, int id) throws PatientNotFoundException {
-        if (repository.existsById(id)) {
-            repository.save(patient);
+    public void update(PatientWithHospitalIdDto patientDto, int id) throws PatientNotFoundException, HospitalNotFoundException {
+        if (patientRepository.existsById(id)) {
+            create(patientDto);
         }
         else {
             throw new PatientNotFoundException();
@@ -64,8 +75,8 @@ public class PatientService {
     }
 
     public void delete(int id) throws PatientNotFoundException {
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
+        if (patientRepository.existsById(id)) {
+            patientRepository.deleteById(id);
         }
         else {
             throw new PatientNotFoundException();

@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StatsDto {
-    int doctorId;
-    long numberOfPatientsUnderCare;
+    private int doctorId;
+    private long numberOfPatientsUnderCare;
 }

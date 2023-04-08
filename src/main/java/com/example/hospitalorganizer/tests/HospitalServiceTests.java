@@ -1,8 +1,8 @@
 package com.example.hospitalorganizer.tests;
 
-import com.example.hospitalorganizer.dto.HospitalDto;
+import com.example.hospitalorganizer.dto.HospitalWithAverageAgeDto;
+import com.example.hospitalorganizer.dto.HospitalWithoutPatientsShiftsDto;
 import com.example.hospitalorganizer.model.Hospital;
-import com.example.hospitalorganizer.model.Patient;
 import com.example.hospitalorganizer.repository.HospitalRepository;
 import com.example.hospitalorganizer.service.HospitalService;
 import org.junit.Before;
@@ -30,22 +30,33 @@ public class HospitalServiceTests {
 
     @Test
     public void orderByAverageAgeOfPatients() {
-        Hospital h1 = new Hospital(1, "Regina Maria", "Ramurilor 30",
-                "General", true, false,0,null, null);
-        Hospital h2 = new Hospital(2, "Regina Maria", "Ramurilor 30",
-                "General", true, false,0,null, null);
-        Hospital h3 = new Hospital(3, "Regina Maria", "Ramurilor 30",
-                "General", true, false,0,null, null);
-        Patient p1 = new Patient(1, "", "", 10, "", "", null);
-        Patient p2 = new Patient(2, "", "", 5, "", "", null);
-        h1.setPatients(List.of(p1));
-        h2.setPatients(List.of(p1,p2));
-        h3.setPatients(List.of(p2));
+        HospitalWithAverageAgeDto h1 = new HospitalWithAverageAgeDto(1, "a", "a", "a",
+                true, true, 20, 45);
+        HospitalWithAverageAgeDto h2 = new HospitalWithAverageAgeDto(1, "a", "a", "a",
+                true, true, 20, 30);
+        HospitalWithAverageAgeDto h3 = new HospitalWithAverageAgeDto(1, "a", "a", "a",
+                true, true, 20, 21.6);
+        List<HospitalWithAverageAgeDto> hospitals = List.of(h1,h2,h3);
+        when(repository.order()).thenReturn(hospitals);
+        List<HospitalWithAverageAgeDto> result = service.orderByAverageAgeOfPatients();
+        assertEquals(result.get(0).getAverageAge(), 45, 0);
+        assertEquals(result.get(1).getAverageAge(), 30,0 );
+        assertEquals(result.get(2).getAverageAge(), 21.6, 0);
+    }
+
+    @Test
+    public void filterByMaximumCapacity() {
+        Hospital h1 = new Hospital(1, "a", "a", "a",
+                true, true, 20, null, null);
+        Hospital h2 = new Hospital(1, "a", "a", "a",
+                true, true, 30, null, null);
+        Hospital h3 = new Hospital(1, "a", "a", "a",
+                true, true, 40, null, null);
         List<Hospital> hospitals = List.of(h1,h2,h3);
-        when(repository.findAll()).thenReturn(hospitals);
-        List<HospitalDto> result = service.orderByAverageAgeOfPatients();
-        assertEquals(result.get(0).getAverageAge(), 5, 0);
-        assertEquals(result.get(1).getAverageAge(), 7.5,0 );
-        assertEquals(result.get(2).getAverageAge(), 10, 0);
+        when(repository.findByMaximumCapacityGreaterThan(20)).thenReturn(hospitals);
+        List<HospitalWithoutPatientsShiftsDto> result = service.filterByMaximumCapacity(20);
+        assertEquals(result.get(0).getMaximumCapacity(), 20, 0);
+        assertEquals(result.get(1).getMaximumCapacity(), 30,0 );
+        assertEquals(result.get(2).getMaximumCapacity(), 40, 0);
     }
 }

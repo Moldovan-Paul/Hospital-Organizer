@@ -1,11 +1,14 @@
 package com.example.hospitalorganizer.service;
 
-import com.example.hospitalorganizer.dto.ShiftDto;
-import com.example.hospitalorganizer.dto.StatsDto;
+import com.example.hospitalorganizer.dto.*;
 import com.example.hospitalorganizer.exception.ConsultationNotFoundException;
+import com.example.hospitalorganizer.exception.DoctorNotFoundException;
+import com.example.hospitalorganizer.exception.HospitalNotFoundException;
 import com.example.hospitalorganizer.model.Shift;
+import com.example.hospitalorganizer.modelmapper.GlobalModelMapper;
+import com.example.hospitalorganizer.repository.DoctorRepository;
+import com.example.hospitalorganizer.repository.HospitalRepository;
 import com.example.hospitalorganizer.repository.ShiftRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,52 +18,69 @@ import java.util.stream.Collectors;
 @Service
 public class ShiftService {
 
-    private final ShiftRepository repository;
+    private final ShiftRepository shiftRepository;
 
-    private final ModelMapper modelMapper;
+    private final HospitalRepository hospitalRepository;
 
-    public ShiftService(ShiftRepository repository) {
-        this.repository = repository;
-        modelMapper = new ModelMapper();
+    private final DoctorRepository doctorRepository;
+
+
+    public ShiftService(ShiftRepository repository,
+                        HospitalRepository hospitalRepository,
+                        DoctorRepository doctorRepository) {
+        this.shiftRepository = repository;
+        this.hospitalRepository = hospitalRepository;
+        this.doctorRepository = doctorRepository;
     }
 
-    private ShiftDto convertToDto(Shift shift) {
-        return modelMapper.map(shift, ShiftDto.class);
-    }
-
-    private ShiftDto convertToDtoWithIds(Shift shift) {
-        ShiftDto shiftDto = modelMapper.map(shift, ShiftDto.class);
-        shiftDto.setHospital(null);
-        shiftDto.setDoctor(null);
+    private ShiftWithObjectsDto convertToDtoWithObjects(Shift shift) throws ConsultationNotFoundException, DoctorNotFoundException {
+        ShiftWithObjectsDto shiftDto = GlobalModelMapper.modelMapper.map(shift, ShiftWithObjectsDto.class);
+        if (shift.getHospital() != null) {
+            shiftDto.setHospital(GlobalModelMapper.modelMapper
+                    .map(shift.getHospital(), HospitalWithoutPatientsShiftsDto.class));
+        }
+        else {
+            throw new ConsultationNotFoundException();
+        }
+        if (shift.getDoctor() != null) {
+            shiftDto.setDoctor(GlobalModelMapper.modelMapper
+                    .map(shift.getDoctor(), DoctorWithoutShiftsDto.class));
+        }
+        else {
+            throw new DoctorNotFoundException();
+        }
         return shiftDto;
     }
 
-    private ShiftDto convertToDtoWithObjects(Shift shift) {
-        ShiftDto shiftDto = modelMapper.map(shift, ShiftDto.class);
-        shiftDto.setHospitalId(null);
-        shiftDto.setDoctorId(null);
-        shiftDto.makeHospitalConsultationsNull();
-        shiftDto.makeDoctorlConsultationsNull();
+    private ShiftWithIdsDto convertToDtoWithoutObjects(Shift shift) {
+        ShiftWithIdsDto shiftDto = GlobalModelMapper.modelMapper.map(shift, ShiftWithIdsDto.class);
+        shiftDto.setHospitalId(shift.getHospital().getId());
+        shiftDto.setDoctorId(shift.getDoctor().getId());
         return shiftDto;
     }
 
-    public List<ShiftDto> findAllConsultations() {
-        return repository.findAll().stream()
-                .map(this::convertToDtoWithIds)
+    public List<ShiftWithIdsDto> findAllConsultations() {
+        return shiftRepository.findAll().stream()
+                .map(this::convertToDtoWithoutObjects)
                 .collect(Collectors.toList());
     }
 
-    public ShiftDto findById(@PathVariable int id) throws ConsultationNotFoundException {
-        return convertToDtoWithObjects(repository.findById(id).orElseThrow(ConsultationNotFoundException::new));
+    public ShiftWithObjectsDto findById(@PathVariable int id) throws ConsultationNotFoundException, DoctorNotFoundException {
+        return convertToDtoWithObjects(shiftRepository.findById(id).orElseThrow(ConsultationNotFoundException::new));
     }
 
-    public Shift create(@RequestBody Shift Shift) {
-        return repository.save(Shift);
+    public Shift create(@RequestBody ShiftWithIdsDto shiftDto) throws HospitalNotFoundException, DoctorNotFoundException {
+        Shift shift = GlobalModelMapper.modelMapper.map(shiftDto, Shift.class);
+        shift.setHospital(hospitalRepository.findById(shiftDto.getHospitalId())
+                .orElseThrow(HospitalNotFoundException::new));
+        shift.setDoctor(doctorRepository.findById(shiftDto.getDoctorId())
+                .orElseThrow(DoctorNotFoundException::new));
+        return shiftRepository.save(shift);
     }
 
-    public void update(@RequestBody Shift Shift, @PathVariable int id) throws ConsultationNotFoundException {
-        if (repository.existsById(id)) {
-            repository.save(Shift);
+    public void update(@RequestBody ShiftWithIdsDto shiftDto, @PathVariable int id) throws ConsultationNotFoundException, DoctorNotFoundException, HospitalNotFoundException {
+        if (shiftRepository.existsById(id)) {
+            create(shiftDto);
         }
         else {
             throw new ConsultationNotFoundException();
@@ -68,8 +88,8 @@ public class ShiftService {
     }
 
     public void delete(@PathVariable int id) throws ConsultationNotFoundException {
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
+        if (shiftRepository.existsById(id)) {
+            shiftRepository.deleteById(id);
         }
         else {
             throw new ConsultationNotFoundException();
@@ -77,6 +97,6 @@ public class ShiftService {
     }
 
     public List<StatsDto> stats(){
-        return repository.order();
+        return shiftRepository.order();
     }
 }

@@ -1,10 +1,10 @@
 package com.example.hospitalorganizer.service;
 
-import com.example.hospitalorganizer.dto.DoctorDto;
+import com.example.hospitalorganizer.dto.DoctorWithoutShiftsDto;
 import com.example.hospitalorganizer.exception.DoctorNotFoundException;
 import com.example.hospitalorganizer.model.Doctor;
+import com.example.hospitalorganizer.modelmapper.GlobalModelMapper;
 import com.example.hospitalorganizer.repository.DoctorRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,19 +16,14 @@ public class DoctorService {
 
     private final DoctorRepository repository;
 
-    private final ModelMapper modelMapper;
-
     public DoctorService(DoctorRepository repository) {
         this.repository = repository;
-        modelMapper = new ModelMapper();
     }
-    private DoctorDto convertToDtoWithoutShifts(Doctor doctor) {
-        DoctorDto doctorDto = modelMapper.map(doctor, DoctorDto.class);
-        doctorDto.setShifts(null);
-        return doctorDto;
+    private DoctorWithoutShiftsDto convertToDtoWithoutShifts(Doctor doctor) {
+        return GlobalModelMapper.modelMapper.map(doctor, DoctorWithoutShiftsDto.class);
     }
 
-    public List<DoctorDto> findAllDoctors() {
+    public List<DoctorWithoutShiftsDto> findAllDoctors() {
         return repository.findAll().stream()
                 .map(this::convertToDtoWithoutShifts)
                 .collect(Collectors.toList());

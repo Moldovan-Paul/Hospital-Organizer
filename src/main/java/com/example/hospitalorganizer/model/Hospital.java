@@ -3,8 +3,6 @@ package com.example.hospitalorganizer.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,30 +17,26 @@ import java.util.List;
 public class Hospital{
         @Id
         @Column(name = "id")
-        int id;
+        private int id;
         @Column(name = "name")
-        @NotBlank(message = "Please input name.")
-        String name;
+        private String name;
         @Column(name = "address")
-        @NotBlank(message = "Please input address.")
-        String address;
+        private String address;
         @Column(name = "specialties")
-        @NotBlank(message = "Please input specialties.")
-        String specialties;
+        private String specialties;
         @Column(name = "privateHospital")
-        boolean privateHospital;
+        private boolean privateHospital;
         @Column(name = "takesEmergencies")
-        boolean takesEmergencies;
+        private boolean takesEmergencies;
         @Column(name = "maximumCapacity")
-        @Min(value = 1, message = "Please input a maximum capacity.")
-        int maximumCapacity;
+        private int maximumCapacity;
 
-        @OneToMany(mappedBy = "h")
+        @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonManagedReference(value = "patient-list")
-        List<Patient> patients;
+        private List<Patient> patients;
 
-        @OneToMany(mappedBy = "hospital")
+        @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonManagedReference(value = "hospital-shift-list")
-        List<Shift> shifts;
+        private List<Shift> shifts;
 }
 

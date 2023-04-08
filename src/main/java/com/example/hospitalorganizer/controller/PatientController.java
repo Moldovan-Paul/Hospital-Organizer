@@ -1,6 +1,8 @@
 package com.example.hospitalorganizer.controller;
 
-import com.example.hospitalorganizer.dto.PatientDto;
+import com.example.hospitalorganizer.dto.PatientWithHospitalDto;
+import com.example.hospitalorganizer.dto.PatientWithHospitalIdDto;
+import com.example.hospitalorganizer.exception.HospitalNotFoundException;
 import com.example.hospitalorganizer.exception.PatientNotFoundException;
 import com.example.hospitalorganizer.model.Patient;
 import com.example.hospitalorganizer.service.PatientService;
@@ -14,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/patients")
 @Validated
+@CrossOrigin
 public class PatientController {
 
     private final PatientService service;
@@ -23,29 +26,31 @@ public class PatientController {
     }
 
     @GetMapping
-    public List<PatientDto> findAllPatients() {
+    @ResponseStatus(HttpStatus.OK)
+    public List<PatientWithHospitalIdDto> findAllPatients() {
         return service.findAllPatients();
     }
 
     @GetMapping("/{id}")
-    public PatientDto findById(@PathVariable int id) throws PatientNotFoundException {
+    @ResponseStatus(HttpStatus.OK)
+    public PatientWithHospitalDto findById(@PathVariable int id) throws PatientNotFoundException {
         return service.findById(id);
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public Patient create(@Valid @RequestBody Patient patient) {
-        return service.create(patient);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Patient create(@Valid @RequestBody PatientWithHospitalIdDto patientDto) throws HospitalNotFoundException {
+        return service.create(patientDto);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
-    public void update(@Valid @RequestBody Patient patient, @PathVariable int id) throws PatientNotFoundException {
-        service.update(patient, id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void update(@Valid @RequestBody PatientWithHospitalIdDto patientDto, @PathVariable int id) throws PatientNotFoundException, HospitalNotFoundException {
+        service.update(patientDto, id);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable int id) throws PatientNotFoundException {
         service.delete(id);
     }

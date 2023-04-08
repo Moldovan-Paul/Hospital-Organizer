@@ -1,7 +1,11 @@
 package com.example.hospitalorganizer.controller;
 
-import com.example.hospitalorganizer.dto.HospitalDto;
+import com.example.hospitalorganizer.dto.HospitalWithAverageAgeDto;
+import com.example.hospitalorganizer.dto.HospitalWithPatientIdListDto;
+import com.example.hospitalorganizer.dto.HospitalWithoutPatientsShiftsDto;
+import com.example.hospitalorganizer.dto.PatientIdsDto;
 import com.example.hospitalorganizer.exception.HospitalNotFoundException;
+import com.example.hospitalorganizer.exception.PatientNotFoundException;
 import com.example.hospitalorganizer.model.Hospital;
 import com.example.hospitalorganizer.service.HospitalService;
 import jakarta.validation.Valid;
@@ -24,40 +28,52 @@ public class HospitalController {
     }
 
     @GetMapping
-    public List<HospitalDto> findAll() {
+    @ResponseStatus(HttpStatus.OK)
+    public List<HospitalWithoutPatientsShiftsDto> findAll() {
         return service.findAll();
     }
 
     @GetMapping("/{id}")
-    public HospitalDto findById(@PathVariable int id) throws HospitalNotFoundException {
+    @ResponseStatus(HttpStatus.OK)
+    public Hospital findById(@PathVariable int id) throws HospitalNotFoundException {
         return service.findById(id);
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
+
     @PostMapping
-    public Hospital create(@Valid @RequestBody Hospital hospital) {
-        return service.create(hospital);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Hospital create(@Valid @RequestBody HospitalWithPatientIdListDto hospitalDto) throws PatientNotFoundException {
+        return service.create(hospitalDto);
     }
 
+    @PutMapping("/{id}/patients")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void create(@RequestBody PatientIdsDto patientIds, @PathVariable int id) throws HospitalNotFoundException, PatientNotFoundException {
+        service.linkPatients(patientIds, id);
+    }
+
     @PutMapping("/{id}")
-    public void update(@Valid @RequestBody Hospital hospital, @PathVariable int id) throws HospitalNotFoundException {
-        service.update(hospital, id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void update(@Valid @RequestBody HospitalWithPatientIdListDto hospitalDto, @PathVariable int id) throws HospitalNotFoundException, PatientNotFoundException {
+        service.update(hospitalDto, id);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable int id) throws HospitalNotFoundException {
         service.delete(id);
     }
 
     @GetMapping(value = "/filter/{capacity}")
-    public List<Hospital> filterByMaximumCapacity(@PathVariable @Min(1) int capacity) {
+    @ResponseStatus(HttpStatus.OK)
+    public List<HospitalWithoutPatientsShiftsDto> filterByMaximumCapacity(@PathVariable @Min(1) int capacity) {
         return service.filterByMaximumCapacity(capacity);
     }
 
-    @GetMapping(value = "/statistics/orderbyage")
-    public List<HospitalDto> orderByAverageAgeOfPatients() {
+    @GetMapping(value = "/order-by/average-age")
+    @ResponseStatus(HttpStatus.OK)
+    public List<HospitalWithAverageAgeDto> orderByAverageAgeOfPatients() {
         return service.orderByAverageAgeOfPatients();
     }
 
