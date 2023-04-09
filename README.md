@@ -11,6 +11,10 @@
   
   **Currently working on**: User interface, Refactoring certain pieces of code according to best practices
   
+  FOR **VIDEO DEMONSTRATION** PLEASE REFER TO THE FOLLOWING ANCHOR:
+
+  [Video Demonstration](#video-demonstration)
+  
 # Database Schema
 
 <p align="center">
@@ -19,11 +23,11 @@
 
 # Functionalities
 
-GET - all entities - /entitites
+GET - all entities - /entities
 
 Returns a list of all entities of given type
 
-GET - all entities - /entitites/{id}
+GET - all entities - /entities/{id}
 
 Returns entity of given type and id with any entities related to it
 
@@ -38,6 +42,10 @@ Updates the entity matching given id
 DELETE - all entities - /entities/{id}
 
 Deletes the entity matching given id
+
+PUT - hospitals - /{id}/patients
+
+Links the given list of patient ids to the hospital with given id
   
 GET - hospitals - /filter/{capacity}
 
@@ -49,8 +57,18 @@ Returns a list of doctor ids along with the number of patients which they have u
 
 *The list of functionalities is constantly expanding.*
 
+# Input validation
+
+All entity post requests are validated in order to ensure that all required fields are present and correct.
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/98110966/230772402-7ebd4eee-d9d0-4484-a61e-f2b05cc31740.png" width="400">
+</p>
+
+
 # Video Demonstration
 
-Demonstration using Postman for requests
+Demonstration using Postman for requests:
 
-https://user-images.githubusercontent.com/98110966/229280670-5bbf9d23-0582-45e0-80ba-308daaa710c8.mp4
+https://user-images.githubusercontent.com/98110966/230775210-53773e67-2e79-4e0c-8ab8-5bb65b5cfb11.mp4
+
