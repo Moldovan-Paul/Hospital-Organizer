@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class HospitalWithPatientIdListDto {
-    private int id;
     @NotBlank(message = "Please input name.")
     private String name;
     @NotBlank(message = "Please input address.")

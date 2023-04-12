@@ -16,7 +16,7 @@ import java.util.Date;
 @Table(name = "shifts")
 public class Shift {
     @Id
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
     @ManyToOne
@@ -29,11 +29,9 @@ public class Shift {
     @JsonBackReference(value = "doctor-shift-list")
     private Doctor doctor;
 
-    @Column(name = "date_and_time")
     @JsonFormat(pattern="dd-MM-yyyy")
     private Date dateAndTime;
 
-    @Column(name = "description")
     private String description;
 
 }

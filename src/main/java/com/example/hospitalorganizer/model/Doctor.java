@@ -19,18 +19,14 @@ import java.util.List;
 @Table(name = "doctors")
 public class Doctor {
         @Id
-        @Column(name = "id")
+        @GeneratedValue(strategy = GenerationType.AUTO)
         private int id;
-        @Column(name = "firstName")
         @NotBlank(message = "Please input first name.")
         private String firstName;
         @NotBlank(message = "Please input last name.")
-        @Column(name = "lastName")
         private String lastName;
-        @Column(name = "speciality")
         @NotBlank(message = "Please input specialty name.")
         private String speciality;
-        @Column(name = "yearsOfExperience")
         @Min(value = 1, message = "Please input years of experience.")
         private int yearsOfExperience;
 

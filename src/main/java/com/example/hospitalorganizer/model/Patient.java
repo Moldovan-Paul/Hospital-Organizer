@@ -15,17 +15,12 @@ import lombok.NoArgsConstructor;
 public class Patient {
 
     @Id
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    @Column(name = "first_name")
     private String firstName;
-    @Column(name = "last_name")
     private String lastName;
-    @Column
     private int age;
-    @Column(name = "symptoms_description")
     private String symptomsDescription;
-    @Column(name = "diagnosis", columnDefinition = "varchar(255) default 'To be decided'")
     private String diagnosis;
 
     @ManyToOne

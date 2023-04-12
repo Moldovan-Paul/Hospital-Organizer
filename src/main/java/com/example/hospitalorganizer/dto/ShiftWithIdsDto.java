@@ -15,7 +15,7 @@ import java.util.Date;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ShiftWithIdsDto {
-    int id;
+    private int id;
     private int hospitalId;
     private int doctorId;
     @JsonFormat(pattern="dd-MM-yyyy")

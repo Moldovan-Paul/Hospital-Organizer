@@ -16,19 +16,13 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Hospital{
         @Id
-        @Column(name = "id")
+        @GeneratedValue(strategy = GenerationType.AUTO)
         private int id;
-        @Column(name = "name")
         private String name;
-        @Column(name = "address")
         private String address;
-        @Column(name = "specialties")
         private String specialties;
-        @Column(name = "privateHospital")
         private boolean privateHospital;
-        @Column(name = "takesEmergencies")
         private boolean takesEmergencies;
-        @Column(name = "maximumCapacity")
         private int maximumCapacity;
 
         @OneToMany(mappedBy = "hospital", cascade = CascadeType.ALL, orphanRemoval = true)
